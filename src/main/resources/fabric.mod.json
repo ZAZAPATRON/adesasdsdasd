@@ -8,9 +8,7 @@
   "contact": {},
   "license": "MIT",
   "environment": "client",
-  "entrypoints": {
-    "client": ["com.example.fpshud.FpsHudMod"]
-  },
+  "entrypoints": {},
   "depends": {
     "fabricloader": ">=0.15.0",
     "fabric": "*"
