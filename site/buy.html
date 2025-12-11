@@ -13,10 +13,11 @@
       <p>Modu lisanslı olarak edinmek için bir ödeme yöntemi seçin. Aşağıdaki seçenekler, sizin için örnek bağlantı/yer tutucudur — gerçek ödeme bağlantılarını sizin sağlamanız veya bir ödeme sağlayıcısı (iyzico, PayU, Papara vb.) ile entegre etmeniz gerekir.</p>
 
       <div style="display:flex;flex-direction:column;gap:12px;align-items:center;margin-top:18px">
-        <a class="btn" href="#" onclick="alert('Ödeme bağlantısı yapılandırılmadı')">Kredi/Banka Kartı (Troy desteklenir)</a>
-        <a class="btn" href="#" onclick="alert('Ödeme bağlantısı yapılandırılmadı')">Papara ile Öde</a>
-        <a class="btn" href="#" onclick="alert('Ödeme bağlantısı yapılandırılmadı')">Ziraat Bankası Havale/EFT</a>
+        <button class="btn" id="buy-troy">Kredi/Banka Kartı (Troy)</button>
+        <button class="btn" id="buy-papara">Papara ile Öde</button>
+        <button class="btn" id="buy-ziraat">Ziraat Bankası Havale/EFT</button>
       </div>
+      <script src="./js/buy.js"></script>
 
       <h3 style="margin-top:18px">Nasıl bağlanır</h3>
       <ol style="text-align:left">
