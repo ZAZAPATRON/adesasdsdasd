@@ -1,78 +1,140 @@
 package com.example.fpshud;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 /**
- * Minimal mod initializer that avoids compile-time Fabric/Minecraft deps by using reflection.
- * It launches a background daemon thread which updates the Minecraft window title with FPS.
+ * Entrypoint that registers a HudRenderCallback reflectively (if Fabric API is present).
+ * If registration fails, a background thread updates the window title with current FPS.
  */
 public class FpsHudMod {
     public FpsHudMod() {}
 
-    // Fabric will reflectively call this method if configured as the entrypoint.
+    // Fabric will try to call this method for client entrypoints.
     public void onInitializeClient() {
-        try {
-            Thread t = new Thread(() -> {
-                while (true) {
-                    try {
-                        Class<?> mcClass = Class.forName("net.minecraft.client.MinecraftClient");
-                        Method getInstance = mcClass.getMethod("getInstance");
-                        Object client = getInstance.invoke(null);
-                        if (client == null) { Thread.sleep(1000); continue; }
+        if (tryRegisterHudCallback()) return;
+        startTitleUpdater();
+    }
 
-                        // attempt to get window and fps via reflection
-                        Object window = null;
-                        try {
-                            Method getWindow = mcClass.getMethod("getWindow");
-                            window = getWindow.invoke(client);
-                        } catch (NoSuchMethodException ignored) {}
+    private boolean tryRegisterHudCallback() {
+        try {
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            Class<?> hudInterface = Class.forName("net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback", true, cl);
+            Field eventField = hudInterface.getField("EVENT");
+            Object event = eventField.get(null);
+
+            InvocationHandler handler = (proxy, method, args) -> {
+                if ("onHudRender".equals(method.getName())) {
+                    try {
+                        Class<?> mcClass = Class.forName("net.minecraft.client.MinecraftClient", true, cl);
+                        Method getInstance = mcClass.getMethod("getInstance");
+                        Object mc = getInstance.invoke(null);
+                        if (mc == null) return null;
 
                         int fps = -1;
-                        if (window != null) {
+                        try {
+                            Method getFps = mcClass.getMethod("getFps");
+                            Object fpsObj = getFps.invoke(mc);
+                            if (fpsObj instanceof Number) fps = ((Number) fpsObj).intValue();
+                        } catch (NoSuchMethodException ignored) {
                             try {
-                                Method getFps = window.getClass().getMethod("getFps");
-                                Object fpsObj = getFps.invoke(window);
+                                Method getWindow = mcClass.getMethod("getWindow");
+                                Object window = getWindow.invoke(mc);
+                                Method getFramerate = window.getClass().getMethod("getFramerate");
+                                Object fpsObj = getFramerate.invoke(window);
                                 if (fpsObj instanceof Number) fps = ((Number) fpsObj).intValue();
-                            } catch (NoSuchMethodException e) {
-                                // ignore
-                            }
+                            } catch (Exception ignored2) {}
                         }
 
-                        // fallback: try a common method on client
-                        if (fps < 0) {
+                        // As a simple, safe visual: update the window title with FPS. HUD drawing via DrawContext
+                        // would require more reflection and is less robust across mappings; this is a safe fallback
+                        try {
+                            Method getWindow = mcClass.getMethod("getWindow");
+                            Object window = getWindow.invoke(mc);
+                            Method setTitle = window.getClass().getMethod("setTitle", String.class);
+                            setTitle.invoke(window, "FPS HUD — " + (fps >= 0 ? (fps + " FPS") : "n/a"));
+                        } catch (NoSuchMethodException e) {
                             try {
-                                Method getFps2 = mcClass.getMethod("getFramerate");
-                                Object fpsObj = getFps2.invoke(client);
-                                if (fpsObj instanceof Number) fps = ((Number) fpsObj).intValue();
-                            } catch (Exception ignored) {}
+                                Method getWindow = mcClass.getMethod("getWindow");
+                                Object window = getWindow.invoke(mc);
+                                Method setTitle2 = window.getClass().getMethod("setWindowTitle", String.class);
+                                setTitle2.invoke(window, "FPS HUD — " + (fps >= 0 ? (fps + " FPS") : "n/a"));
+                            } catch (Exception ignored3) {}
                         }
-
-                        String title = "FPS HUD" + (fps >= 0 ? (" — " + fps + " FPS") : "");
-
-                        // try setTitle or setWindowTitle on window
-                        if (window != null) {
-                            try {
-                                Method setTitle = window.getClass().getMethod("setTitle", String.class);
-                                setTitle.invoke(window, title);
-                            } catch (NoSuchMethodException e1) {
-                                try {
-                                    Method setTitle2 = window.getClass().getMethod("setWindowTitle", String.class);
-                                    setTitle2.invoke(window, title);
-                                } catch (Exception ignored) {}
-                            } catch (Exception ignored) {}
-                        }
-
-                        Thread.sleep(1000);
-                    } catch (Throwable ex) {
-                        try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                    } catch (Throwable t) {
+                        // ignore per-frame errors
                     }
                 }
-            });
+                return null;
+            };
+
+            Object callback = Proxy.newProxyInstance(cl, new Class[]{hudInterface}, handler);
+            // Event.register(Object) exists; call reflectively
+            Method register = event.getClass().getMethod("register", Object.class);
+            register.invoke(event, callback);
+            return true;
+        } catch (Throwable ex) {
+            return false;
+        }
+    }
+
+    private void startTitleUpdater() {
+        try {
+            Thread t = new Thread(() -> {
+                try {
+                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                    Class<?> mcClass = Class.forName("net.minecraft.client.MinecraftClient", true, cl);
+                    while (true) {
+                        try {
+                            Method getInstance = mcClass.getMethod("getInstance");
+                            Object mc = getInstance.invoke(null);
+                            if (mc == null) { Thread.sleep(1000); continue; }
+
+                            int fps = -1;
+                            try {
+                                Method getFps = mcClass.getMethod("getFps");
+                                Object fpsObj = getFps.invoke(mc);
+                                if (fpsObj instanceof Number) fps = ((Number) fpsObj).intValue();
+                            } catch (NoSuchMethodException ignored) {
+                                try {
+                                    Method getWindow = mcClass.getMethod("getWindow");
+                                    Object window = getWindow.invoke(mc);
+                                    Method getFramerate = window.getClass().getMethod("getFramerate");
+                                    Object fpsObj = getFramerate.invoke(window);
+                                    if (fpsObj instanceof Number) fps = ((Number) fpsObj).intValue();
+                                } catch (Exception ignored2) {}
+                            }
+
+                            try {
+                                Method getWindow = mcClass.getMethod("getWindow");
+                                Object window = getWindow.invoke(mc);
+                                Method setTitle = window.getClass().getMethod("setTitle", String.class);
+                                setTitle.invoke(window, "FPS HUD — " + (fps >= 0 ? (fps + " FPS") : "n/a"));
+                            } catch (NoSuchMethodException e) {
+                                try {
+                                    Method getWindow = mcClass.getMethod("getWindow");
+                                    Object window = getWindow.invoke(mc);
+                                    Method setTitle2 = window.getClass().getMethod("setWindowTitle", String.class);
+                                    setTitle2.invoke(window, "FPS HUD — " + (fps >= 0 ? (fps + " FPS") : "n/a"));
+                                } catch (Exception ignored3) {}
+                            }
+
+                            Thread.sleep(1000);
+                        } catch (Throwable inner) {
+                            try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                        }
+                    }
+                } catch (Throwable outer) {
+                    // give up silently
+                }
+            }, "fpshud-title-updater");
             t.setDaemon(true);
-            t.setName("fpshud-updater");
             t.start();
         } catch (Throwable t) {
-            // swallow to avoid breaking loader
+            // ignore
         }
     }
 }
+
