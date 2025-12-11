@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "fpshud",
+  "version": "1.0.0",
+  "name": "FPS HUD",
+  "description": "Shows a large FPS counter on the right side of the screen.",
+  "authors": ["ZAZAPATRON"],
+  "contact": {},
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.example.fpshud.FpsHudMod"]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "fabric": "*"
+  }
+}

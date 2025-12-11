@@ -1,0 +1,5 @@
+This is a placeholder. To build the real mod JAR run:
+
+./gradlew build
+
+After building, the JAR will be in build/libs/ and you can copy it here for hosting.
