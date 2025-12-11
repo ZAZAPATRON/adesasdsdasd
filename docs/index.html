@@ -43,7 +43,7 @@
       <h1>FPS HUD</h1>
       <p>Büyük, sağ tarafta görünen FPS göstergesi. Minecraft 1.21.8 (Fabric).</p>
       <div style="display:flex;gap:12px;justify-content:center">
-        <a class="btn" id="download-link" href="../downloads/fpshud-1.0.0.jar">Modu indir (JAR)</a>
+        <button class="btn" id="download-btn" onclick="downloadMod()" style="border:none;cursor:pointer">Modu indir (JAR)</button>
         <a class="btn" id="buy-link" href="./buy.html" style="background:#2b8a3e">Satın Al</a>
         <a class="btn" href="./register.html" style="background:#e67e22">Kayıt Ol</a>
       </div>
@@ -54,6 +54,17 @@
 
   <script src="./js/auth.js"></script>
   <script>
+    function downloadMod() {
+      const registered = localStorage.getItem('fpshud_registered');
+      if (!registered) {
+        alert('Modu indirmek için lütfen kayıt olun!');
+        window.location.href = './register.html';
+        return;
+      }
+      // JAR'ı indir
+      window.location.href = '../downloads/fpshud-1.0.0.jar';
+    }
+
     // Sayfa açılır açılmaz kayıt modal'ını göster
     window.addEventListener('load', function() {
       const registered = localStorage.getItem('fpshud_registered');
