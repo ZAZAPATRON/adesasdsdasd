@@ -9,9 +9,25 @@ html,body{height:100%;margin:0;font-family:Inter,Arial,Helvetica,sans-serif;back
 .card img{width:160px;height:160px}
 .card h1{margin:12px 0 6px;font-size:28px}
 .card p{color:#334;line-height:1.4}
-.btn{display:inline-block;margin-top:18px;padding:12px 20px;background:var(--accent);color:#fff;border-radius:8px;text-decoration:none}
+.btn{display:inline-block;margin-top:18px;padding:12px 20px;background:var(--accent);color:#fff;border-radius:8px;text-decoration:none;border:none;cursor:pointer;font-size:14px;font-weight:500;transition:background 0.2s}
+.btn:hover{opacity:0.9}
 .note{font-size:12px;color:#666;margin-top:12px}
 .credit{position:fixed;left:12px;bottom:12px;font-size:12px;color:#06365b}
+
+/* Modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
+.modal-content{background:#fff;padding:32px;border-radius:12px;max-width:400px;width:90%;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.modal-close{position:absolute;top:12px;right:12px;background:none;border:none;font-size:28px;cursor:pointer;color:#999}
+.modal-close:hover{color:#333}
+.modal h2{margin:0 0 20px;font-size:22px;color:#111}
+.auth-step{display:none}
+.auth-step.active{display:block}
+.auth-step p{margin:0 0 12px;font-size:14px;color:#555}
+.auth-step input{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;margin-bottom:12px}
+.auth-step input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(11,99,214,0.1)}
+.modal-content .btn{display:block;width:100%;margin-top:12px;padding:10px}
+#email-message, #code-message{min-height:20px;color:#d32f2f;font-size:13px}
+.success{color:#4ade80 !important}
 
 /* Minecraft-like background: repeating squares + subtle parallax */
 body::before{
@@ -34,4 +50,5 @@ body::after{
 .b3{left:8%;bottom:40%;transform:rotate(-4deg);animation:float 12s ease-in-out infinite}
 @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-18px)}100%{transform:translateY(0)}}
 
-@media (max-width:520px){.card img{width:120px;height:120px}.card{padding:20px}}
+/* responsive */
+@media (max-width:520px){.card img{width:120px;height:120px}.card{padding:20px}.modal-content{padding:24px}}

@@ -7,19 +7,59 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
+  <!-- Kayıt Modal -->
+  <div id="auth-modal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+      <h2>Kayıt Ol</h2>
+      
+      <div id="email-step" class="auth-step active">
+        <p>Email adresinizi girin</p>
+        <input type="email" id="email-input" placeholder="örn: kullanici@gmail.com" required>
+        <button onclick="sendVerificationCode()" class="btn" style="width:100%;margin-top:12px">Kod Gönder</button>
+        <div id="email-message" style="margin-top:8px;font-size:0.9em"></div>
+      </div>
+
+      <div id="code-step" class="auth-step" style="display:none">
+        <p>Email adresinize gönderilen kodu girin</p>
+        <input type="text" id="code-input" placeholder="6 haneli kod" maxlength="6" inputmode="numeric" required>
+        <button onclick="verifyCode()" class="btn" style="width:100%;margin-top:12px">Doğrula</button>
+        <button onclick="backToEmail()" style="width:100%;margin-top:8px;background:#666">Geri Dön</button>
+        <div id="code-message" style="margin-top:8px;font-size:0.9em"></div>
+      </div>
+
+      <div id="success-step" class="auth-step" style="display:none">
+        <p style="color:#4ade80;font-weight:bold">✓ Başarıyla kayıt oldunuz!</p>
+        <p id="success-email" style="margin-top:8px"></p>
+        <button onclick="closeAuthModal()" class="btn" style="width:100%;margin-top:12px">Kapat</button>
+      </div>
+    </div>
+  </div>
+
   <div class="wrap">
     <div class="card">
-      <div class="notice">Yeni JAR yüklendi: <a href="./downloads/fpshud-1.0.0.jar">fpshud-1.0.0.jar</a> — 691 bytes (2025-12-11)</div>
+      <div class="notice">Yeni JAR yüklendi: <a href="../downloads/fpshud-1.0.0.jar">fpshud-1.0.0.jar</a> — 691 bytes (2025-12-11)</div>
       <img src="assets/icon.svg" alt="Mavi donut mod ikonu">
       <h1>FPS HUD</h1>
       <p>Büyük, sağ tarafta görünen FPS göstergesi. Minecraft 1.21.8 (Fabric).</p>
       <div style="display:flex;gap:12px;justify-content:center">
-        <a class="btn" id="download-link" href="./downloads/fpshud-1.0.0.jar">Modu indir (JAR)</a>
+        <a class="btn" id="download-link" href="../downloads/fpshud-1.0.0.jar">Modu indir (JAR)</a>
         <a class="btn" id="buy-link" href="./buy.html" style="background:#2b8a3e">Satın Al</a>
       </div>
       <p class="note">Not: Bu mod Fabric Loader gerektirir. Yardım istersen Fabric yükleyici eklemeye yardımcı olabilirim.</p>
     </div>
   </div>
   <footer class="credit">Arka plan: Minecraft-stil bloklar (CSS ile)</footer>
+
+  <script src="./js/auth.js"></script>
+  <script>
+    // Sayfa açılır açılmaz kayıt modal'ını göster
+    window.addEventListener('load', function() {
+      const registered = localStorage.getItem('fpshud_registered');
+      if (!registered) {
+        document.getElementById('auth-modal').style.display = 'flex';
+      }
+    });
+  </script>
 </body>
 </html>
