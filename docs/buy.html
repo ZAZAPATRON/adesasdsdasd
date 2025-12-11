@@ -5,23 +5,37 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>FPS HUD - Satın Al</title>
   <link rel="stylesheet" href="./style.css">
+  <link rel="icon" type="image/svg+xml" href="./assets/icon.svg">
+  
+  <!-- Open Graph Preview Tags -->
+  <meta property="og:title" content="FPS HUD Mod - Satın Al">
+  <meta property="og:description" content="Minecraft 1.21.8 için büyük FPS göstergesi. Fabric modü.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://zazapatron.github.io/adesasdsdasd/buy.html">
+  <meta property="og:image" content="https://zazapatron.github.io/adesasdsdasd/assets/icon.svg">
 </head>
 <body>
   <div class="wrap">
     <div class="card">
       <h1>Satın Al — FPS HUD</h1>
-      <p>Modu lisanslı olarak edinmek için bir ödeme yöntemi seçin. Aşağıdaki seçenekler yer tutucudur — lütfen gerçek ödeme bağlantılarını sağlayın.</p>
+      <p>Modu lisanslı olarak edinmek için bir ödeme yöntemi seçin. Aşağıdaki seçenekler, sizin için örnek bağlantı/yer tutucudur — gerçek ödeme bağlantılarını sizin sağlamanız veya bir ödeme sağlayıcısı (iyzico, PayU, Papara vb.) ile entegre etmeniz gerekir.</p>
 
       <div style="display:flex;flex-direction:column;gap:12px;align-items:center;margin-top:18px">
-        <button class="btn" onclick="alert('Bu sayfa örnek. Gerçek ödeme için site yapılandırılmalıdır.')">Kredi/Banka Kartı (Troy)</button>
-        <button class="btn" onclick="alert('Bu sayfa örnek. Gerçek ödeme için site yapılandırılmalıdır.')">Papara</button>
-        <button class="btn" onclick="alert('Bu sayfa örnek. Gerçek ödeme için site yapılandırılmalıdır.')">Ziraat Bankası (Havale)</button>
+        <button class="btn" id="buy-troy">Kredi/Banka Kartı (Troy)</button>
+        <button class="btn" id="buy-papara">Papara ile Öde</button>
+        <button class="btn" id="buy-ziraat">Ziraat Bankası Havale/EFT</button>
       </div>
+      <script src="./js/buy.js"></script>
 
-      <h3 style="margin-top:18px">Bağlantı talimatı</h3>
-      <p style="text-align:left">Ödeme entegrasyonu için bir sağlayıcı seçin (ör. iyzico veya Papara). Sağlayıcının dokümantasyonunu izleyerek 'başarılı ödeme' sonrası kullanıcıya indirebileceğiniz özel bir bağlantı oluşturun.</p>
+      <h3 style="margin-top:18px">Nasıl bağlanır</h3>
+      <ol style="text-align:left">
+        <li>Bir ödeme sağlayıcısında hesap açın (iyzico/PayU/Papara veya banka ödeme linki).</li>
+        <li>Sağlayıcının size verdiği ödeme linkini veya ödeme API'sini kullanarak burada düğmeleri güncelleyin.</li>
+        <li>Ödeme alındıktan sonra kullanıcılara indirme bağlantısı veya lisans anahtarı sağlayın.</li>
+      </ol>
 
-      <a class="btn" href="./index.html" style="margin-top:12px">Geri</a>
+      <p class="note">Not: Bu sayfa sadece yer tutucudur. Güvenli ödeme ve lisanslama için profesyonel bir ödeme sağlayıcısı ve sunucu tarafı doğrulama gereklidir.</p>
+      <a class="btn" href="index.html" style="margin-top:12px">Geri</a>
     </div>
   </div>
 </body>
