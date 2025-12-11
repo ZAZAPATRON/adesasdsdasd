@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kayıt Ol - FPS HUD Mod</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" style="max-width:500px">
+      <a href="./" style="display:inline-block;margin-bottom:20px;color:#0b63d6;text-decoration:none;font-size:14px">← Ana Sayfaya Dön</a>
+      
+      <h1>Kayıt Ol</h1>
+      <p style="color:#666;margin:12px 0 28px">FPS HUD'a erişim için email adresinizi kaydedin</p>
+
+      <div id="email-step" class="auth-step active" style="display:block">
+        <p style="text-align:left;margin-bottom:8px;font-weight:500">Email Adresiniz</p>
+        <input type="email" id="email-input" placeholder="örn: kullanici@gmail.com" required style="display:block;width:100%">
+        <button onclick="sendVerificationCode()" class="btn" style="width:100%;margin-top:16px">Kod Gönder</button>
+        <div id="email-message" style="margin-top:12px;font-size:0.9em;min-height:20px"></div>
+      </div>
+
+      <div id="code-step" class="auth-step" style="display:none">
+        <p style="text-align:left;margin-bottom:8px;font-weight:500">Doğrulama Kodu</p>
+        <p style="font-size:13px;color:#666;margin-bottom:12px">Email adresinize gönderilen 6 haneli kodu girin</p>
+        <input type="text" id="code-input" placeholder="000000" maxlength="6" inputmode="numeric" required style="display:block;width:100%;font-size:18px;letter-spacing:8px;text-align:center">
+        <button onclick="verifyCode()" class="btn" style="width:100%;margin-top:16px">Doğrula</button>
+        <button onclick="backToEmail()" style="width:100%;margin-top:8px;background:#999;padding:10px;border:none;color:#fff;border-radius:6px;cursor:pointer">Geri Dön</button>
+        <div id="code-message" style="margin-top:12px;font-size:0.9em;min-height:20px"></div>
+      </div>
+
+      <div id="success-step" class="auth-step" style="display:none">
+        <div style="text-align:center">
+          <p style="font-size:48px;margin:0">✓</p>
+          <p style="color:#4ade80;font-weight:bold;font-size:18px;margin:12px 0">Başarıyla kayıt oldunuz!</p>
+          <p id="success-email" style="color:#666;margin:8px 0 20px"></p>
+          <a href="./" class="btn" style="display:inline-block;text-decoration:none">Ana Sayfaya Dön</a>
+        </div>
+      </div>
+
+      <p style="font-size:12px;color:#999;margin-top:28px">
+        💡 Test sırasında doğrulama kodu tarayıcı konsolunda (F12) görünür
+      </p>
+    </div>
+  </div>
+
+  <script src="./js/auth.js"></script>
+  <script>
+    document.getElementById('email-input').focus();
+  </script>
+</body>
+</html>
