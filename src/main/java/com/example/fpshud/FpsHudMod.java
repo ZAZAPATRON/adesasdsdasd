@@ -1,41 +1,78 @@
 package com.example.fpshud;
 
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
+import java.lang.reflect.Method;
 
-public class FpsHudMod implements ClientModInitializer {
-    @Override
+/**
+ * Minimal mod initializer that avoids compile-time Fabric/Minecraft deps by using reflection.
+ * It launches a background daemon thread which updates the Minecraft window title with FPS.
+ */
+public class FpsHudMod {
+    public FpsHudMod() {}
+
+    // Fabric will reflectively call this method if configured as the entrypoint.
     public void onInitializeClient() {
-        HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
-            MinecraftClient client = MinecraftClient.getInstance();
-            if (client == null || client.textRenderer == null) return;
+        try {
+            Thread t = new Thread(() -> {
+                while (true) {
+                    try {
+                        Class<?> mcClass = Class.forName("net.minecraft.client.MinecraftClient");
+                        Method getInstance = mcClass.getMethod("getInstance");
+                        Object client = getInstance.invoke(null);
+                        if (client == null) { Thread.sleep(1000); continue; }
 
-            int fps = (int) client.getWindow().getFps();
-            String s = fps + " FPS";
+                        // attempt to get window and fps via reflection
+                        Object window = null;
+                        try {
+                            Method getWindow = mcClass.getMethod("getWindow");
+                            window = getWindow.invoke(client);
+                        } catch (NoSuchMethodException ignored) {}
 
-            TextRenderer tr = client.textRenderer;
-            int width = client.getWindow().getScaledWidth();
-            int textWidth = tr.getWidth(s);
-            int x = width - textWidth - 12; // right padding
-            int y = 8; // top padding
+                        int fps = -1;
+                        if (window != null) {
+                            try {
+                                Method getFps = window.getClass().getMethod("getFps");
+                                Object fpsObj = getFps.invoke(window);
+                                if (fpsObj instanceof Number) fps = ((Number) fpsObj).intValue();
+                            } catch (NoSuchMethodException e) {
+                                // ignore
+                            }
+                        }
 
-            // Draw larger by drawing scale transform if DrawContext supports matrices
-            try {
-                drawContext.getMatrices().push();
-                drawContext.getMatrices().scale(1.8f, 1.8f, 1.0f);
-                int sx = (int) (x / 1.8f);
-                int sy = (int) (y / 1.8f);
-                drawContext.drawText(tr, Text.of(s), sx, sy, 0x66CCFF, true);
-            } catch (Exception e) {
-                // Fallback: normal size
-                drawContext.drawText(tr, Text.of(s), x, y, 0x66CCFF, true);
-            } finally {
-                try { drawContext.getMatrices().pop(); } catch (Exception ignored) {}
-            }
-        });
+                        // fallback: try a common method on client
+                        if (fps < 0) {
+                            try {
+                                Method getFps2 = mcClass.getMethod("getFramerate");
+                                Object fpsObj = getFps2.invoke(client);
+                                if (fpsObj instanceof Number) fps = ((Number) fpsObj).intValue();
+                            } catch (Exception ignored) {}
+                        }
+
+                        String title = "FPS HUD" + (fps >= 0 ? (" — " + fps + " FPS") : "");
+
+                        // try setTitle or setWindowTitle on window
+                        if (window != null) {
+                            try {
+                                Method setTitle = window.getClass().getMethod("setTitle", String.class);
+                                setTitle.invoke(window, title);
+                            } catch (NoSuchMethodException e1) {
+                                try {
+                                    Method setTitle2 = window.getClass().getMethod("setWindowTitle", String.class);
+                                    setTitle2.invoke(window, title);
+                                } catch (Exception ignored) {}
+                            } catch (Exception ignored) {}
+                        }
+
+                        Thread.sleep(1000);
+                    } catch (Throwable ex) {
+                        try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                    }
+                }
+            });
+            t.setDaemon(true);
+            t.setName("fpshud-updater");
+            t.start();
+        } catch (Throwable t) {
+            // swallow to avoid breaking loader
+        }
     }
 }
