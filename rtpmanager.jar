@@ -1,0 +1,33 @@
+package me.ali.donut;
+
+import org.bukkit.command.*;
+import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import java.util.Random;
+
+public class RTPManager implements CommandExecutor {
+    private Random rand = new Random();
+
+    public RTPManager(Main plugin) {}
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!(sender instanceof Player)) return true;
+        Player p = (Player) sender;
+
+        String worldName = "world";
+        if (args.length > 0) {
+            if (args[0].equalsIgnoreCase("nether")) worldName = "world_nether";
+            if (args[0].equalsIgnoreCase("end")) worldName = "world_the_end";
+        }
+
+        int x = rand.nextInt(1000) - 500;
+        int z = rand.nextInt(1000) - 500;
+        Location loc = new Location(Bukkit.getWorld(worldName), x, 100, z);
+
+        p.teleport(loc);
+        p.sendMessage("§aRastgele teleport yapıldı: " + worldName);
+        return true;
+    }
+}
