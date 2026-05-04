@@ -1,0 +1,30 @@
+package me.ali.donut;
+
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class Main extends JavaPlugin {
+    private static EconomyManager economy;
+    private static HomeManager homes;
+    private static RTPManager rtp;
+
+    @Override
+    public void onEnable() {
+        economy = new EconomyManager(this);
+        homes = new HomeManager(this);
+        rtp = new RTPManager(this);
+
+        getCommand("sell").setExecutor(economy);
+        getCommand("ah").setExecutor(economy);
+        getCommand("home").setExecutor(homes);
+        getCommand("sethome").setExecutor(homes);
+        getCommand("delhome").setExecutor(homes);
+        getCommand("rtp").setExecutor(rtp);
+
+        getLogger().info("DonutClone plugin aktif!");
+    }
+
+    @Override
+    public void onDisable() {
+        getLogger().info("DonutClone plugin kapandı!");
+    }
+}
